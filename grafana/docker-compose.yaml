@@ -1,0 +1,91 @@
+version: "3"
+# please change placeholder credentials!!!
+networks:
+  loki:
+  db: 
+
+services:
+  db:
+    # Use postgres/password user/password credentials
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=grafana
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=verySecure 
+    ports:
+      - "5432:5432"
+    networks:
+      - db
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  loki:
+    image: grafana/loki:2.8.0
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - loki
+
+  promtail:
+    image: grafana/promtail:2.8.0
+    volumes:
+      - /var/log:/var/log
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - loki
+
+  grafana:
+    environment:
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: admin
+      # GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: db:5432
+      GF_DATABASE_NAME: grafana
+      GF_DATABASE_USER: user
+      GF_DATABASE_PASSWORD: verySecure
+      GF_DATABASE_SSL_MODE: disable
+      GF_PLUGIN_ADMIN_ENABLED: "true"
+      GF_INSTALL_PLUGINS: nline-plotlyjs-panel
+
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /etc/grafana/provisioning/datasources
+        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
+        EOF
+        /run.sh
+        apiVersion: 1
+        datasources:
+        - name: Loki
+          type: loki
+          access: proxy 
+          orgId: 1
+          url: http://loki:3100
+          basicAuth: false
+          isDefault: true
+          version: 1
+          editable: false
+#        - name: postgres
+#          type: postgres
+#          access: proxy
+#          orgId: 1
+#          url: http://postgres:5432
+#          basicAuth: true
+#          isDefault: false
+#          version: 1
+#          editable: false
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    networks:
+      - loki
+      - db

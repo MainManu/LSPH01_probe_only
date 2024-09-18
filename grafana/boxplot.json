@@ -1,0 +1,753 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 2,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+      },
+      "gridPos": {
+        "h": 17,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "allData": {
+          "opacity": 0.8
+        },
+        "config": {},
+        "data": [
+          {
+            "hovertext": "probe1",
+            "line": {
+              "color": "red"
+            },
+            "type": "box"
+          },
+          {
+            "hovertext": "probe2",
+            "line": {
+              "color": "blue"
+            },
+            "type": "box"
+          }
+        ],
+        "layout": {
+          "font": {
+            "color": "rgb(25,27,31)",
+            "family": "Inter, Helvetica, Arial, sans-serif"
+          },
+          "hoverlabel": {
+            "bgcolor": "white"
+          },
+          "margin": {
+            "b": 30,
+            "l": 30,
+            "r": 30,
+            "t": 30
+          },
+          "paper_bgcolor": "white",
+          "plot_bgcolor": "white",
+          "xaxis": {
+            "automargin": true,
+            "autorange": true,
+            "type": "box"
+          },
+          "yaxis": {
+            "automargin": true,
+            "autorange": true
+          }
+        },
+        "onclick": "console.log(data);\n// window.updateVariables({query:{'var-project':'test'}, partial: true})",
+        "resScale": 2,
+        "script": "let x1 = data.series[0].fields[2].values;\nlet y1 = data.series[0].fields[1].values;\n\nlet x2 = data.series[1].fields[2].values;\nlet y2 = data.series[1].fields[1].values;\n\nlet probe1 = {\n  x: x1,\n  y: y1,\n  type: 'box'\n};\nlet probe2 = {\n  x: x2,\n  y: y2,\n  type:'box',\n  //pointpos:0\n};\n\nreturn { data: [probe1, probe2] };",
+        "yamlMode": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\", ph_high_res, name FROM probe_data WHERE  ph_high_res < 15.1 AND ph_high_res > 0 AND name = 'probe1' and ph_should_be = 4.00",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "\"time\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "ph_high_res",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "probe_data"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\", ph_high_res, name FROM probe_data WHERE  ph_high_res < 15.1 AND ph_high_res > 0 AND name = 'probe2' and ph_should_be = 4.00",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Deviation analysis pH 4.00",
+      "transparent": true,
+      "type": "nline-plotlyjs-panel"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+      },
+      "gridPos": {
+        "h": 17,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "allData": {
+          "opacity": 0.8
+        },
+        "config": {},
+        "data": [
+          {
+            "hovertext": "probe1",
+            "line": {
+              "color": "red"
+            },
+            "type": "box"
+          },
+          {
+            "hovertext": "probe2",
+            "line": {
+              "color": "blue"
+            },
+            "type": "box"
+          }
+        ],
+        "layout": {
+          "font": {
+            "color": "rgb(25,27,31)",
+            "family": "Inter, Helvetica, Arial, sans-serif"
+          },
+          "hoverlabel": {
+            "bgcolor": "white"
+          },
+          "margin": {
+            "b": 30,
+            "l": 30,
+            "r": 30,
+            "t": 30
+          },
+          "paper_bgcolor": "white",
+          "plot_bgcolor": "white",
+          "xaxis": {
+            "automargin": true,
+            "autorange": true,
+            "type": "box"
+          },
+          "yaxis": {
+            "automargin": true,
+            "autorange": true
+          }
+        },
+        "onclick": "console.log(data);\n// window.updateVariables({query:{'var-project':'test'}, partial: true})",
+        "resScale": 2,
+        "script": "let x1 = data.series[0].fields[2].values;\nlet y1 = data.series[0].fields[1].values;\n\nlet x2 = data.series[1].fields[2].values;\nlet y2 = data.series[1].fields[1].values;\n\nlet probe1 = {\n  x: x1,\n  y: y1,\n  type: 'box'\n};\nlet probe2 = {\n  x: x2,\n  y: y2,\n  type:'box',\n  //pointpos:0\n};\n\nreturn { data: [probe1, probe2] };",
+        "yamlMode": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\", ph_high_res, name FROM probe_data WHERE  ph_high_res < 15.1 AND ph_high_res > 0 AND name = 'probe1' and ph_should_be = 7.01",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "\"time\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "ph_high_res",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "probe_data"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\", ph_high_res, name FROM probe_data WHERE  ph_high_res < 15.1 AND ph_high_res > 0 AND name = 'probe2' and ph_should_be = 7.01",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Deviation analysis pH 7.01",
+      "transparent": true,
+      "type": "nline-plotlyjs-panel"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+      },
+      "gridPos": {
+        "h": 17,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "allData": {
+          "opacity": 0.8
+        },
+        "config": {},
+        "data": [
+          {
+            "hovertext": "probe1",
+            "line": {
+              "color": "red"
+            },
+            "type": "box"
+          },
+          {
+            "hovertext": "probe2",
+            "line": {
+              "color": "blue"
+            },
+            "type": "box"
+          }
+        ],
+        "layout": {
+          "font": {
+            "color": "rgb(25,27,31)",
+            "family": "Inter, Helvetica, Arial, sans-serif"
+          },
+          "hoverlabel": {
+            "bgcolor": "white"
+          },
+          "margin": {
+            "b": 30,
+            "l": 30,
+            "r": 30,
+            "t": 30
+          },
+          "paper_bgcolor": "white",
+          "plot_bgcolor": "white",
+          "xaxis": {
+            "automargin": true,
+            "autorange": true,
+            "type": "box"
+          },
+          "yaxis": {
+            "automargin": true,
+            "autorange": true
+          }
+        },
+        "onclick": "console.log(data);\n// window.updateVariables({query:{'var-project':'test'}, partial: true})",
+        "resScale": 2,
+        "script": "let x1 = data.series[0].fields[2].values;\nlet y1 = data.series[0].fields[1].values;\n\nlet x2 = data.series[1].fields[2].values;\nlet y2 = data.series[1].fields[1].values;\n\nlet probe1 = {\n  x: x1,\n  y: y1,\n  type: 'box',\n  pointpos: -1.8\n};\nlet probe2 = {\n  x: x2,\n  y: y2,\n  type:'box',\n  //pointpos:0\n};\n\nreturn { data: [probe1, probe2] };",
+        "yamlMode": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\", ph_high_res, name FROM probe_data WHERE  ph_high_res < 15.1 AND ph_high_res > 0 AND name = 'probe1' and ph_should_be = 9.93",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "\"time\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "ph_high_res",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "probe_data"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\", ph_high_res, name FROM probe_data WHERE  ph_high_res < 15.1 AND ph_high_res > 0 AND name = 'probe2' and ph_should_be = 9.93",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Deviation analysis pH 9.93",
+      "transparent": true,
+      "type": "nline-plotlyjs-panel"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+      },
+      "gridPos": {
+        "h": 17,
+        "w": 8,
+        "x": 0,
+        "y": 17
+      },
+      "id": 1,
+      "options": {
+        "allData": {
+          "opacity": 0.8
+        },
+        "config": {},
+        "data": [
+          {
+            "hovertext": "probe1",
+            "line": {
+              "color": "red"
+            },
+            "type": "box"
+          },
+          {
+            "hovertext": "probe2",
+            "line": {
+              "color": "blue"
+            },
+            "type": "box"
+          }
+        ],
+        "layout": {
+          "font": {
+            "color": "rgb(25,27,31)",
+            "family": "Inter, Helvetica, Arial, sans-serif"
+          },
+          "hoverlabel": {
+            "bgcolor": "white"
+          },
+          "margin": {
+            "b": 30,
+            "l": 30,
+            "r": 30,
+            "t": 30
+          },
+          "paper_bgcolor": "white",
+          "plot_bgcolor": "white",
+          "xaxis": {
+            "automargin": true,
+            "autorange": true,
+            "type": "box"
+          },
+          "yaxis": {
+            "automargin": true,
+            "autorange": true
+          }
+        },
+        "onclick": "console.log(data);\n// window.updateVariables({query:{'var-project':'test'}, partial: true})",
+        "resScale": 2,
+        "script": "let x1 = data.series[0].fields[2].values;\nlet y1 = data.series[0].fields[1].values;\n\nlet x2 = data.series[1].fields[2].values;\nlet y2 = data.series[1].fields[1].values;\n\nlet probe1 = {\n  x: x1,\n  y: y1,\n  type: 'box',\n  pointpos: -1.8\n};\nlet probe2 = {\n  x: x2,\n  y: y2,\n  type:'box',\n  //pointpos:0\n};\n\nreturn { data: [probe1, probe2] };",
+        "yamlMode": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\", ph_high_res, name FROM probe_data WHERE  ph_high_res < 15.1 AND ph_high_res > 0 AND name = 'probe1' and ph_should_be = 3.98",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "\"time\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "ph_high_res",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "probe_data"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\", ph_high_res, name FROM probe_data WHERE  ph_high_res < 15.1 AND ph_high_res > 0 AND name = 'probe2' and ph_should_be = 3.98",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Deviation analysis pH 3.98",
+      "transparent": true,
+      "type": "nline-plotlyjs-panel"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+      },
+      "gridPos": {
+        "h": 17,
+        "w": 8,
+        "x": 8,
+        "y": 17
+      },
+      "id": 5,
+      "options": {
+        "allData": {
+          "opacity": 0.8
+        },
+        "config": {},
+        "data": [
+          {
+            "hovertext": "probe1",
+            "line": {
+              "color": "red"
+            },
+            "type": "box"
+          },
+          {
+            "hovertext": "probe2",
+            "line": {
+              "color": "blue"
+            },
+            "type": "box"
+          }
+        ],
+        "layout": {
+          "font": {
+            "color": "rgb(25,27,31)",
+            "family": "Inter, Helvetica, Arial, sans-serif"
+          },
+          "hoverlabel": {
+            "bgcolor": "white"
+          },
+          "margin": {
+            "b": 30,
+            "l": 30,
+            "r": 30,
+            "t": 30
+          },
+          "paper_bgcolor": "white",
+          "plot_bgcolor": "white",
+          "xaxis": {
+            "automargin": true,
+            "autorange": true,
+            "type": "box"
+          },
+          "yaxis": {
+            "automargin": true,
+            "autorange": true
+          }
+        },
+        "onclick": "console.log(data);\n// window.updateVariables({query:{'var-project':'test'}, partial: true})",
+        "resScale": 2,
+        "script": "let x1 = data.series[0].fields[2].values;\nlet y1 = data.series[0].fields[1].values;\n\nlet x2 = data.series[1].fields[2].values;\nlet y2 = data.series[1].fields[1].values;\n\nlet probe1 = {\n  x: x1,\n  y: y1,\n  type: 'box',\n  //pointpos: -1.8\n};\nlet probe2 = {\n  x: x2,\n  y: y2,\n  type:'box',\n  //pointpos:0\n};\n\nreturn { data: [probe1, probe2] };",
+        "yamlMode": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\", ph_high_res, name FROM probe_data WHERE  ph_high_res < 15.1 AND ph_high_res > 2 AND name = 'probe1' and ph_should_be = 5.70",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "\"time\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "ph_high_res",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "probe_data"
+        },
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "ba09dd8b-a77f-4b10-ab40-5c2a5ecb6995"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "hide": false,
+          "rawQuery": true,
+          "rawSql": "SELECT \"time\", ph_high_res, name FROM probe_data WHERE  ph_high_res < 15.1 AND ph_high_res > 2 AND name = 'probe2' and ph_should_be = 5.70",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Deviation analysis pH 5.70",
+      "transparent": true,
+      "type": "nline-plotlyjs-panel"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "2023-07-12T05:11:06.416Z",
+    "to": "2023-08-05T16:14:02.311Z"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "plotly_data_analysis",
+  "uid": "a3744d0f-0e11-409b-ae85-7f4f75f95a95",
+  "version": 8,
+  "weekStart": ""
+}
