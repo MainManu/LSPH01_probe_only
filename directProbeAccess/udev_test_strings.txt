@@ -1,0 +1,82 @@
+P: /devices/pci0000:00/0000:00:14.0/usb1/1-12/1-12.1/1-12.1.2/1-12.1.2:1.0/ttyUSB0/tty/ttyUSB0
+N: ttyUSB0
+L: 0
+S: serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
+S: serial/by-path/pci-0000:00:14.0-usb-0:12.1.2:1.0-port0
+E: DEVPATH=/devices/pci0000:00/0000:00:14.0/usb1/1-12/1-12.1/1-12.1.2/1-12.1.2:1.0/ttyUSB0/tty/ttyUSB0
+E: DEVNAME=/dev/ttyUSB0
+E: MAJOR=188
+E: MINOR=0
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=507007480263
+E: ID_BUS=usb
+E: ID_VENDOR_ID=1a86
+E: ID_MODEL_ID=7523
+E: ID_PCI_CLASS_FROM_DATABASE=Serial bus controller
+E: ID_PCI_SUBCLASS_FROM_DATABASE=USB controller
+E: ID_PCI_INTERFACE_FROM_DATABASE=XHCI
+E: ID_VENDOR_FROM_DATABASE=QinHeng Electronics
+E: ID_MODEL_FROM_DATABASE=CH340 serial converter
+E: ID_VENDOR=1a86
+E: ID_VENDOR_ENC=1a86
+E: ID_MODEL=USB2.0-Ser_
+E: ID_MODEL_ENC=USB2.0-Ser\x21
+E: ID_REVISION=0254
+E: ID_SERIAL=1a86_USB2.0-Ser_
+E: ID_TYPE=generic
+E: ID_USB_INTERFACES=:ff0102:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_USB_DRIVER=ch341
+E: ID_USB_CLASS_FROM_DATABASE=Vendor Specific Class
+E: ID_PATH=pci-0000:00:14.0-usb-0:12.1.2:1.0
+E: ID_PATH_TAG=pci-0000_00_14_0-usb-0_12_1_2_1_0
+E: ID_MM_CANDIDATE=1
+E: ID_FOR_SEAT=tty-pci-0000_00_14_0-usb-0_12_1_2_1_0
+E: ID_MM_DEVICE_IGNORE=1
+E: ID_MM_PORT_IGNORE=1
+E: DEVLINKS=/dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0 /dev/serial/by-path/pci-0000:00:14.0-usb-0:12.1.2:1.0-port0
+E: TAGS=:uaccess:systemd:seat:
+E: CURRENT_TAGS=:uaccess:systemd:seat:
+
+
+
+P: /devices/pci0000:00/0000:00:14.0/usb1/1-10/1-10:1.0/ttyUSB0/tty/ttyUSB0
+N: ttyUSB0
+L: 0
+S: serial/by-path/pci-0000:00:14.0-usb-0:10:1.0-port0
+S: serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
+E: DEVPATH=/devices/pci0000:00/0000:00:14.0/usb1/1-10/1-10:1.0/ttyUSB0/tty/ttyUSB0
+E: DEVNAME=/dev/ttyUSB0
+E: MAJOR=188
+E: MINOR=0
+E: SUBSYSTEM=tty
+E: USEC_INITIALIZED=507041396263
+E: ID_BUS=usb
+E: ID_VENDOR_ID=1a86
+E: ID_MODEL_ID=7523
+E: ID_PCI_CLASS_FROM_DATABASE=Serial bus controller
+E: ID_PCI_SUBCLASS_FROM_DATABASE=USB controller
+E: ID_PCI_INTERFACE_FROM_DATABASE=XHCI
+E: ID_VENDOR_FROM_DATABASE=QinHeng Electronics
+E: ID_MODEL_FROM_DATABASE=CH340 serial converter
+E: ID_VENDOR=1a86
+E: ID_VENDOR_ENC=1a86
+E: ID_MODEL=USB2.0-Ser_
+E: ID_MODEL_ENC=USB2.0-Ser\x21
+E: ID_REVISION=0254
+E: ID_SERIAL=1a86_USB2.0-Ser_
+E: ID_TYPE=generic
+E: ID_USB_INTERFACES=:ff0102:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_USB_DRIVER=ch341
+E: ID_USB_CLASS_FROM_DATABASE=Vendor Specific Class
+E: ID_PATH=pci-0000:00:14.0-usb-0:10:1.0
+E: ID_PATH_TAG=pci-0000_00_14_0-usb-0_10_1_0
+E: ID_MM_CANDIDATE=1
+E: ID_FOR_SEAT=tty-pci-0000_00_14_0-usb-0_10_1_0
+E: ID_MM_DEVICE_IGNORE=1
+E: ID_MM_PORT_IGNORE=1
+E: DEVLINKS=/dev/serial/by-path/pci-0000:00:14.0-usb-0:10:1.0-port0 /dev/serial/by-id/usb-1a86_USB2.0-Ser_-if00-port0
+E: TAGS=:seat:uaccess:systemd:
+E: CURRENT_TAGS=:seat:uaccess:systemd:
+

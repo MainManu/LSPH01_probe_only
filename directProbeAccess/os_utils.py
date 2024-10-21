@@ -49,7 +49,7 @@ def get_device_info(device_path:str)->str:
             time.sleep(1)
     
 
-def setup_udev_rules(export=False,dry_run=True):
+def setup_udev_rules(export=False,dry_run=True, offset=0):
     print(f"exporting: {export}, dry_run: {dry_run}")
     old_devices = get_plugged_in_tty_paths()
     time.sleep(1)
@@ -62,7 +62,7 @@ def setup_udev_rules(export=False,dry_run=True):
     vendor_id = [line.split('=')[1] for line in device_info.split('\n') if line.startswith('E: ID_VENDOR_ID=')][0]
 
     udev_rules = ""
-    counter = 0
+    counter = offset
     last_kernels_str = ""
 
 

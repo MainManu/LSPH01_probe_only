@@ -1,27 +1,93 @@
 #! /usr/bin/env pipenv-shebang
 import serial
+import time
 import binascii
+import inspect
 from  .CRC16MODBUS import CRC16
+from .modbus import modbus_write_single_message, modbus_write_single_response, modbus_read_message, modbus_read_response, parse_error, protocol_error
+from .log_utils import print_data
+from .errorlog import error_log
 from binascii import hexlify, unhexlify
 
-class modbus_message:
-    def __init__(self, raw_data) -> None:
-        self.raw_data = hexlify(raw_data)
-        self.station_address = self.raw_data[0:2]
-        self.function_code = self.raw_data[2:4]  
-        self.n_bytes = self.raw_data[4:6]
-        self.data = self.raw_data[6:-2]
-        self.crc = self.raw_data[-2:]
+log = error_log(tag="probeAccess")
 
-class ph_response(modbus_message):
-    def __init__(self, raw_data) -> None:
-        super().__init__(raw_data)
+
+class ph_response(modbus_read_response):
+    def __init__(self, raw_data, ignore_errors=False) -> None:
+        super().__init__(raw_data, ignore_errors=ignore_errors)
+        if self.byte_count != b'06' and not ignore_errors:
+            log.info(message=parse_error("Byte count must be 6"), context=inspect.currentframe().f_lineno)
         self.ph_high_res_raw = self.data[0:4]
         self.ph_low_res_raw = self.data[4:8]
         self.temperature_raw = self.data[8:12]
         self.temperature = int.from_bytes(unhexlify(self.temperature_raw), byteorder='big')/10
         self.ph_high_res = int.from_bytes(unhexlify(self.ph_high_res_raw), byteorder='big')/100
         self.ph_low_res = int.from_bytes(unhexlify(self.ph_low_res_raw), byteorder='big')/10
+
+class calibration_response(modbus_write_single_response):
+    def __init__(self, raw_data, ingore_errors=False) -> None:
+        super().__init__(raw_data, ignore_errors=ingore_errors)
+        self.ignore_errors = ingore_errors
+        if not self.is_empty:
+            try:
+                self.cal_value = int(self.value, 16)
+                match self.cal_value:
+                    case 4:
+                        self.ph_calibration = 4
+                        self.finished = False
+                    case 6:
+                        self.ph_calibration = 7
+                        self.finished = False
+                    case 9:
+                        self.ph_calibration = 10
+                        self.finished = False
+                    case 41: # 29 = 41 base 10
+                        self.ph_calibration = 4
+                        self.finished = True
+                    case 61: #3d = 61 base 10
+                        self.ph_calibration = 7
+                        self.finished = True
+                    case 91: #5b = 91 base 10
+                        self.ph_calibration = 10
+                        self.finished = True
+                    case 151:
+                        self.ph_calibration = "Factory default"
+                        self.finished = False
+                    case other:
+                        self.ph_calibration = "Error"
+                        self.finished = False
+            except Exception as e:
+                if not self.ignore_errors:
+                    log.info(message=parse_error(f"Could not parse calibration response: {e}", context=inspect.currentframe().f_lineno))
+class cal_verify_response(modbus_read_response):
+    def __init__(self, raw_data, ignore_errors=False) -> None:
+        super().__init__(raw_data,ignore_errors=ignore_errors)
+        self.cal_value = int(self.data, 16)
+        match self.cal_value:
+            case 4:
+                self.ph_calibration = 4
+                self.finished = False
+            case 6:
+                self.ph_calibration = 7
+                self.finished = False
+            case 9:
+                self.ph_calibration = 10
+                self.finished = False
+            case 41: # 29 = 41 base 10
+                self.ph_calibration = 4
+                self.finished = True
+            case 61: #3d = 61 base 10
+                self.ph_calibration = 7
+                self.finished = True
+            case 91: #5b = 91 base 10
+                self.ph_calibration = 10
+                self.finished = True
+            case 151:
+                self.ph_calibration = "Factory default"
+                self.finished = False
+            case other:
+                self.ph_calibration = "Error"
+                self.finished = False
 
 class probeAccess:
     def __init__(self, port='/dev/ttyUSB0', baudrate='9600', station_address=b'\xFE', name='probe1', dummy=False) -> None:
@@ -69,6 +135,7 @@ class probeAccess:
 
     def dummy_send(self, bytes):
         return self.build_modbus_response('write_single_register',  b'\x00', b'\x00\x03')
+
     def send(self, bytes):
         self.ser.write(bytes)
         return self.ser.read(11)
@@ -118,14 +185,15 @@ class probeAccess:
 
 
     def decode_modbus_response(self, message):
-        # TODO: implement
+        # return modbus_response(message)
         pass
 
     # getters
 
-    def get_ph_high_res(self) -> ph_response:
+    def get_ph_high_res(self, ignore_errors=False) -> ph_response:
         '''
         NOTE: The set pin of the device must be connected to GND to enter READ mode to read the pH value.
+        ignore_errors must be set to True if you want to check if the SET pin is set incorrectly
         '''
         message = self.build_modbus_message(
             'read_single_register', 'ph_high_res', n_registers=b'\x00\x03')
@@ -139,7 +207,7 @@ class probeAccess:
                 retry_counter += 1
         else:
             raise IOError('Could not read from device: timeout')
-        return ph_response(response)
+        return ph_response(response, ignore_errors)
 
     # setters
 
@@ -177,6 +245,32 @@ class probeAccess:
         return self.send(message)
     
     def calibrate_ph(self, ph):
+        def verify_calibration(self, expected_ph)-> bool:
+            ''' subfunction to verify values are actually calibrated, SET pin must be LOW!!!!'''
+            ph_resp = self.get_ph_high_res()
+            print_data(ph_resp, self.name, expected_ph)
+            ph_diff = ph_resp.ph_high_res - expected_ph
+            if abs(ph_diff) > 0.5:
+                print(f"{self.name}: pH differs too much from expexted value: {ph_diff}")
+                log.error(f"{self.name}: pH differs too much from expexted value: {ph_diff}")
+                print("please repeat the calibration process. Note that it won't work if the pH is too far from the calibrated value. If the value is wrong , double check if you selected the right buffe. Note that it won't work if the pH is too far from the calibrated value. If the value is wrong , double check if you selected the right buffer")
+                return False
+            else:
+                return True
+
+        def wait_until_calibration_done(self) -> None:
+            '''subfunction to wait until calibration is done. SET pin must be LOW!!!!'''
+            check_message = self.build_modbus_message(
+                'read_single_register', 'ph_calibrate', n_registers=b'\x00\x01', station_address=self.station_address)
+            while True:
+                time.sleep(1)
+                check_response = self.send(check_message)
+                chk_resp_decoded = cal_verify_response(check_response)
+                if chk_resp_decoded.finished and chk_resp_decoded.ph_calibration == ph:
+                    print(f"Calibration done for probe {self.name}")
+                    break
+                else:
+                    print(".")           
         '''
         NOTE: The set pin of the device must be connected to VCC to enter SET mode, which is required for calibration.
         '''
@@ -194,13 +288,62 @@ class probeAccess:
         match ph:
             case 4:
                 message=b'\xFF\x06\x00\x0A\x00\x04\xBD\xD5'
+                expected_ph=4.01
             case 7:
                 message=b'\xFF\x06\x00\x0A\x00\x06\x3C\x14'
+                expected_ph=6.86
             case 10:
-                message=b'\xFF\x06\x00\x0A\x00\x09\xFC\x12'
+                # message=b'\xFF\x06\x00\x0A\x00\x09\xFC\x12'
+                # FF 06 00 0A 00 09 7C 10
+                message = b'\xFF\x06\x00\x0A\x00\x09\x7C\x10'
+                expected_ph=9.18
             case other:
                 raise ValueError('Invalid pH calibration value')
-        return self.send(message)
+        send_retry_counter =0
+        empty_response_retry_counter = 0
+        while empty_response_retry_counter < 3:
+            while send_retry_counter < 3:
+                try:
+                    response = self.send(message)
+                    # resp_decoded = calibration_response(response)
+                    # if not resp_decoded.is_empty:
+                    #     break
+                    break
+                    # else:
+                        # retry_counter += 1
+                except Exception as e:
+                    send_retry_counter += 1
+                    log.info(message=str(e))
+            else:
+                raise OSError('timeout')
+            resp_decoded = calibration_response(response)
+            if resp_decoded.is_empty:
+                log.info(message=protocol_error(f"probe {self.name} returned empty response"))
+                empty_response_retry_counter += 1
+                time.sleep(1)
+            else:
+                break
+        else:
+            error_log.error("Too many empty responses, check sent command: "+str(message))
+            raise OSError('too many empty responses, check sent command')
+        received_but_not_done= not resp_decoded.finished and resp_decoded.ph_calibration == ph
+        done = resp_decoded.finished and resp_decoded.ph_calibration == ph
+        if received_but_not_done:
+            print(f"probe {self.name} received calibration command for {ph}")
+            input(f"{self.name}: Please plug the SET pin into GND to verify the calibration")
+            wait_until_calibration_done(self)
+            verify_calibration(self, expected_ph)
+        elif done:
+            print(f"probe {self.name} calibration done for {ph}")
+            input(f"{self.name}: Please plug the SET pin into GND to verify the calibration")
+            verify_calibration(self, expected_ph)
+            return
+        else:
+            raise ValueError(f"probe {self.name} calibration failed for {ph}, response was {str(resp_decoded)}")
+        
+
+        
+
 
 
 

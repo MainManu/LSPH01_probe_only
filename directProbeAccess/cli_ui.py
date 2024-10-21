@@ -12,12 +12,14 @@ def handle_args():
     }
     parser = ArgumentParser(description="Directly access pH probes")
     parser.add_argument("-probe", "--probe", help="The path to a single probe", type=str)
-    parser.add_argunent("-start", "--start", help="the path to the first consecutive probe", type=str)
+    parser.add_argument("-start", "--start", help="the path to the first consecutive probe", type=str)
     parser.add_argument("-end", "--end", help="the path to the last consecutive probe", type=str)
     parser.add_argument("-select_ui", "--select_ui", help="Select the probes from a list of plugged in probes", action="store_true")
     parser.add_argument("-auto_refresh", "--auto_refresh", help="Automatically refresh the list of plugged in probes", action="store_true")
     parser.add_argument("-expected_ph_value", "--expected_ph_value", help="Set the expected pH value for all probes", type=float)
     parser.add_argument("-set_expected_ph_ui", "--set_expected_ph_ui", help="Set the expected pH value for all probes in a ui", action="store_true")
+    parser.add_argument("-save_config", "--save_config", help="Save the configuration to a file", action="store_true")
+    parser.add_argument("-udev_initialized", "--udev_initialized", help="set true if udev is already configured to map probes to /dev/sensor*", action="store_true")
     
     args = parser.parse_args()
 
@@ -29,15 +31,11 @@ def handle_args():
         end_num = int(re.search(r'\d+$', args.end).group())
         ret.append([probeAccess(port=args.start[:-1] + str(i)) for i in range(start_num, end_num+1)])
     elif args.select_ui:
-        ret["probes"] = select_from_tty(auto_refresh=args.auto_refresh)
-        ret["probes"]
+        ret["probes"] = select_from_tty(auto_refresh=args.auto_refresh, udev_initialized=args.udev_initialized)
         if args.set_expected_ph_ui:
-            if args.auto_refresh:
-                ret["probes"] = select_from_tty(auto_refresh=True)
-            else:
-                ret["probes"] = select_from_tty()
-            if args.set_expected_ph_ui:
                 ret["expected_ph_values"] = set_expected_ph_values(ret["probes"])
+        if args.save_config:
+            save_config({probe.port: probe.name for probe in ret["probes"]}, ret["expected_ph_values"])
     if args.expected_ph_value:
         ret["expected_ph_values"] = [args.expected_ph_value] * len(ret["probes"])
     return ret
@@ -196,3 +194,33 @@ def set_expected_ph_values(probes):
         return dict(zip(probe_names, ph_values))
     return curses.wrapper(set_expected_ph_values_logic, probes)
 
+def save_config(named_ports, expected_ph_values=None, file="config.txt"):
+    with open(file , "w") as f:
+        for port, name in named_ports.items():
+            f.write(f"{port} {name}\n")
+        if expected_ph_values != None:
+            for name, ph in expected_ph_values:
+                f.write(f"{name} {ph}\n")
+
+def load_config(file="config.txt"):
+    """
+    Load the configuration from a file
+    paths and names are stored as e.g /dev/sensor1 probe2
+    expected ph values are stored in order as plain numbers
+    """
+    named_ports = {}
+    expected_ph_values = []
+    with open(file, "r") as f:
+        for line in f:
+            split_line = line.split()
+            if len(split_line) == 2:
+                named_ports[split_line[0]] = split_line[1]
+            elif len(split_line) == 1:
+                expected_ph_values.append(float(split_line[0]))
+
+    if expected_ph_values == []:
+        return named_ports, None
+    elif len(named_ports) != len(expected_ph_values):
+        raise ValueError("The number of expected ph values does not match the number of probes")
+    else:
+        return named_ports, expected_ph_values

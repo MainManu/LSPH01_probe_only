@@ -49,9 +49,9 @@ else
 fi
 
 #move export_udev_rules.txt to /etc/udev/rules.d/10-local.rules
-sudo mv export_udev_rules.txt /etc/udev/rules.d/10-local-phsens.rules
-sudo chown root:root /etc/udev/rules.d/10-local-phsens.rules
-sudo chmod 644 /etc/udev/rules.d/10-local-phsens.rules
+sudo mv export_udev_rules.txt /etc/udev/rules.d/99-local-phsens.rules
+sudo chown root:root /etc/udev/rules.d/99-local-phsens.rules
+sudo chmod 644 /etc/udev/rules.d/99-local-phsens.rules
 
 # reload the udev rules
 sudo udevadm control --reload-rules && sudo udevadm trigger

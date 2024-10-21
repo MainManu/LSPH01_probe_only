@@ -9,6 +9,7 @@ then
     exit
 fi
 
+
 # check if venv folder exists
 if [ -d ".venv" ]
 then
@@ -26,10 +27,10 @@ echo "2. Raspberry Pi requirements"
 read -p "Enter your choice: " choice
 if [ $choice -eq 1 ]
 then
-    pip3 install -r requirements_minimal.txt
+    pip3 install -r setup/requirements_minimal.txt
 elif [ $choice -eq 2 ]
 then
-    pip3 install -r requirements_rpi.txt
+    pip3 install -r setup/requirements_rpi.txt
 else
     echo "Invalid choice. Exiting."
     exit

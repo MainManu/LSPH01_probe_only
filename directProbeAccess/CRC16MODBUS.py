@@ -8,7 +8,7 @@
 # @note original table from: https://www.digi.com/resources/documentation/digidocs/90001537/references/r_python_crc16_modbus.htm
 
 
-
+import binascii
 from functools import partial
 
 class CRC16:
@@ -76,21 +76,31 @@ class CRC16:
         return crc
 
     def calcBytes(self, bytes: bytes, crc: str):
-        """Given a binary string and starting CRC, Calc a final CRC-16 """
+        """Given a bytes string and starting CRC, Calc a final CRC-16 """
         for by in bytes:
             crc = (crc >> 8) ^ self.table[(crc ^ by) & 0xFF]
         return crc
     
-    def swapBytes(self, crc: str):
-        '''swap the bytes of a crc16, useful if hb/lb are swapped'''
+    def swapBytes(self, crc: str)->int:
+        '''swap the bytes of a crc16, useful if hb/lb are swapped, however, it returns an integer, not a string or bytes literal. Keep this in mind'''
         return((crc & 0xFF00) >> 8) | ((crc & 0x00FF) << 8)
     
     def swappedCalcString(self, st: str, crc: str):
-        return self.swapBytes(self.calcString(st, crc))
+       return self.swapBytes(self.calcString(st, crc))
     
     def swappedCalcBytes(self, bytes: bytes, crc: str):
         return self.swapBytes(self.calcBytes(bytes, crc))
 
+    def i_to_bytes_literal(self, i: int)->bytes:
+        return binascii.hexlify(i.to_bytes(2, 'big'))
+    
+    def i_to_esc_bytes_str(self, i: int)->str:
+        ret ="" 
+        for c in f"{i:04x}":
+            ret.append("\\x")
+            ret.append(c)
+            
+    
 
 
 if __name__ == '__main__':
@@ -98,13 +108,13 @@ if __name__ == '__main__':
     crc16 = CRC16()
     # test Modbus
     st = "\xFF\x06\x02\x00\x00\x01"
-    crc = crc16.calcStringStart(st)    
-    crcrev = crc16.calcStringReverseStart(st)
-    crcdf1 = crc16.calcStringDF1Start(st)
+    st_bytes = b'\xFF\x06\x02\x00\x00\x01'
 
-    print('original bytes: '+ hex(crc))
-    print('reorderd bytes: '+ '0x' +hex(crc)[4:6] + hex(crc)[2:4])
-    print('reversed bytes: '+ hex(crcrev))
-    print('df1: '+ hex(crcdf1))
-
- 
+    crc = crc16.calcStringStart(st)
+    crc_bytes = crc16.calcBytesStart(st_bytes)
+    crc_rev = crc16.swapped_calc_stringStart(st)
+    crc_rev_bytes = crc16.swappedCalcBytesStart(st_bytes)
+    print(f"Modbus CRC: {crc}")
+    print(f"Modbus CRC: {crc_bytes}")
+    print(f"Modbus CRC: {crc_rev}")
+    print(f"Modbus CRC: {crc_rev_bytes}")
